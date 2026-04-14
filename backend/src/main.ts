@@ -19,7 +19,10 @@ async function bootstrap(): Promise<void> {
     res.send('Amavi API Running');
   });
 
-  await app.listen(process.env.PORT ? Number(process.env.PORT) : 3000);
+  await app.listen(
+    process.env.PORT ? Number(process.env.PORT) : 3000,
+    '0.0.0.0',
+  );
 }
 
 void bootstrap();
