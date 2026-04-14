@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  SUPERVISOR
+  CLINICIAN
+  MEDTECH
+  STAFF
+}
+
+enum ResidentStatus {
+  ACTIVE
+  DISCHARGED
+}
+
+enum NoteStatus {
+  DRAFT
+  FINALIZED
+  SIGNED
+}
+
+enum MedicationOrderStatus {
+  DRAFT
+  ACTIVE
+  HELD
+  DISCONTINUED
+}
+
+enum TaskStatus {
+  OPEN
+  COMPLETED
+}
+
+enum AlertStatus {
+  OPEN
+  RESOLVED
+}
+
+model Facility {
+  id        String    @id @default(cuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  users     User[]
+  residents Resident[]
+}
+
+model User {
+  id         String   @id @default(cuid())
+  facilityId String
+  email      String   @unique
+  fullName   String
+  role       UserRole
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+}
+
+model Resident {
+  id           String         @id @default(cuid())
+  facilityId   String
+  firstName    String
+  lastName     String
+  dateOfBirth  DateTime
+  admissionDate DateTime
+  status       ResidentStatus @default(ACTIVE)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  facility     Facility       @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  clinicalNotes ClinicalNote[]
+  medicationOrders MedicationOrder[]
+  tasks        Task[]
+  complianceAlerts ComplianceAlert[]
+}
+
+model ClinicalNote {
+  id          String     @id @default(cuid())
+  facilityId  String
+  residentId  String
+  title       String
+  content     String
+  problem     String
+  goal        String
+  objective   String
+  status      NoteStatus @default(DRAFT)
+  createdById String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  resident    Resident   @relation(fields: [residentId], references: [id], onDelete: Cascade)
+}
+
+model MedicationOrder {
+  id          String                @id @default(cuid())
+  facilityId  String
+  residentId  String
+  medicationName String
+  dose        String
+  route       String
+  frequency   String
+  status      MedicationOrderStatus @default(DRAFT)
+  createdById String
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  resident    Resident              @relation(fields: [residentId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  facilityId  String
+  residentId  String?
+  title       String
+  status      TaskStatus @default(OPEN)
+  dueAt       DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  resident    Resident?  @relation(fields: [residentId], references: [id], onDelete: SetNull)
+}
+
+model ComplianceAlert {
+  id          String      @id @default(cuid())
+  facilityId  String
+  residentId  String?
+  title       String
+  detail      String
+  status      AlertStatus @default(OPEN)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  resident    Resident?   @relation(fields: [residentId], references: [id], onDelete: SetNull)
+}
