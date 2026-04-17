@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { TreatmentPlansModule } from './modules/treatment-plans/treatment-plans.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './common/db/prisma.module';
 import { EventBusModule } from './common/events/event-bus.module';
@@ -20,6 +21,7 @@ import { ComplianceModule } from './modules/compliance/compliance.module';
     MedicationModule,
     TasksModule,
     ComplianceModule,
+    TreatmentPlansModule,
   ],
 })
 export class AppModule {}
