@@ -134,3 +134,20 @@ model ComplianceAlert {
   updatedAt   DateTime    @updatedAt
   resident    Resident?   @relation(fields: [residentId], references: [id], onDelete: SetNull)
 }
+model TreatmentPlan {
+  id         String   @id @default(cuid())
+  facilityId String
+  residentId String
+  problem    String
+  goal       String
+  objective  String
+  createdBy  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+
+  @@index([facilityId])
+  @@index([residentId])
+  @@index([createdAt])
+}
